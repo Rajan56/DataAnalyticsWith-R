@@ -43,4 +43,4 @@ Base R is enough. The svglite package is used for figures when installed. The ru
 
 The company is fictional and the data are simulated with a fixed seed. A true effect of -38 kWh per tonne is built in, so the analysis can be checked against a known answer.
 
-Rajan Kumar V K, D.Sc. (Tech.). Portfolio: https://rajan56.github.io/RajanKVK03Portfolio/
+Rajan Kumar V K, D.Sc. (Tech.). Portfolio: https://rajan56.github.io/RajanKVK-Industry-Portfolio/
