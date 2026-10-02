@@ -89,7 +89,16 @@ ol.rec{padding-left:22px}
 ol.rec li{margin-bottom:12px}
 footer{margin-top:64px;background:var(--navy);color:#8fa3ad;font-size:.84rem;padding:24px 0}
 footer a{color:#c9d6dc}
-@media(max-width:640px){body{font-size:16px}.kpis{grid-template-columns:1fr}}
+.wi{display:grid;grid-template-columns:270px 1fr;gap:26px;background:var(--navy);color:#dfe8ec;border-radius:18px;padding:24px;margin:18px 0}
+.wi label{display:block;font-size:.84rem;color:#c9d6dc;margin-bottom:14px}
+.wi label span{float:right;color:#fff;font-weight:600;font-variant-numeric:tabular-nums}
+.wi input{width:100%;margin-top:6px;accent-color:#6fd0c7}
+.bar{margin-bottom:14px;font-size:.84rem;color:#c9d6dc}
+.bar b{float:right;color:#fff;font-variant-numeric:tabular-nums}
+.bar i{display:block;height:14px;border-radius:7px;margin-top:6px;transition:width .15s}
+.wi .kpis{grid-template-columns:repeat(2,1fr);margin:16px 0 0}
+.wi p{font-size:.8rem;color:#8fa3ad;margin:12px 0 0}
+@media(max-width:640px){body{font-size:16px}.kpis,.wi,.wi .kpis{grid-template-columns:1fr}}
 "
 
 page <- c(
@@ -111,7 +120,7 @@ paste0("<style>", css, "</style>"),
 "<span class='eyebrow'>Data analytics with R</span>",
 "<h1>Did the heat recovery retrofit pay off?</h1>",
 "<p class='lede'>A packaging plant fitted a heat recovery unit to one of its two board lines. Energy per tonne fell afterwards, and the project team reported the full drop as the saving. This analysis asks how much of it the retrofit truly caused, and what that means for the payback.</p>",
-"<ul class='tags'><li>Welch t test</li><li>Difference in differences</li><li>Multiple regression</li><li>Robust standard errors</li><li>Model diagnostics</li><li>Logistic regression</li><li>Cross-validation</li></ul>",
+"<ul class='tags'><li>Welch t test</li><li>Difference in differences</li><li>Multiple regression</li><li>Robust standard errors</li><li>Model diagnostics</li><li>Logistic regression</li><li>Cross-validation</li><li>Interactive what-if model</li></ul>",
 "<div class='answer'>",
 "<h3>The answer first</h3>",
 sprintf("<p>The retrofit works, but it saves about %s %% less than the before and after comparison suggests. The rest of the visible drop came from warmer weather, which lowered energy use on the untouched line as well.</p>", f0(100 * (1 - eff["Estimate"] / naive))),
@@ -191,6 +200,51 @@ sprintf("<p>Line B produces about %s tonnes a year. At EUR %d per MWh:</p>", f0(
 html_table(biz_m, "Estimate"),
 sprintf("<p>The corrected saving is EUR %s a year, with a 95 %% range of EUR %s to %s, and about %s tonnes of CO&#8322; avoided at an assumed %s kg per kWh. Payback moves from %s to %s years. The investment still clears a normal hurdle, yet a business case for line A written on the naive figure would have overstated the benefit by EUR %s a year.</p>", f0(biz$EUR_year[2]), f0(eur_ci[1]), f0(eur_ci[2]), f0(co2_t), formatC(co2_factor, format = "f", digits = 2), f1(biz$Payback_y[1]), f1(biz$Payback_y[2]), f0(biz$EUR_year[1] - biz$EUR_year[2])),
 
+"<h2><span>Try it</span>What if conditions change?</h2>",
+"<p>The fitted model is more than a table. Move the sliders to set a typical day on line B and see what the regression predicts, with and without the retrofit, and what that does to the business case. The coefficients are the ones estimated in Step 4.</p>",
+"<div class='wi'><div>",
+"<label>Throughput <span id='wTpV'></span><input type='range' id='wTp' min='9' max='15' step='0.1' value='12'></label>",
+"<label>Raw material moisture <span id='wMoV'></span><input type='range' id='wMo' min='6' max='10' step='0.1' value='8'></label>",
+"<label>Outdoor temperature <span id='wTeV'></span><input type='range' id='wTe' min='-15' max='22' step='1' value='5'></label>",
+"<label>Changeovers per day <span id='wChV'></span><input type='range' id='wCh' min='0' max='5' step='1' value='1'></label>",
+"<label>Share of heavy grade <span id='wHvV'></span><input type='range' id='wHv' min='0' max='100' step='5' value='35'></label>",
+"<label>Energy price <span id='wPrV'></span><input type='range' id='wPr' min='40' max='200' step='5' value='90'></label>",
+"<label>Investment <span id='wInV'></span><input type='range' id='wIn' min='200' max='800' step='10' value='420'></label>",
+"</div><div>",
+"<div class='bar'>Without retrofit <b id='wA'></b><i id='wAb' style='background:#e09a4a'></i></div>",
+"<div class='bar'>With retrofit <b id='wB'></b><i id='wBb' style='background:#6fd0c7'></i></div>",
+"<div class='kpis'>",
+"<div class='kpi'><small>Saving per year</small><b id='wS'></b><span id='wSr'></span></div>",
+"<div class='kpi'><small>Payback</small><b id='wP'></b><span id='wPr2'></span></div>",
+"<div class='kpi'><small>Energy bill, line B</small><b id='wC'></b><span>per year, with retrofit</span></div>",
+"<div class='kpi'><small>CO&#8322; avoided</small><b id='wO'></b><span>tonnes per year</span></div>",
+"</div>",
+"<p id='wN'></p>",
+"</div></div>",
+paste0("<script>var K={b0:", tab_adj["(Intercept)", "Estimate"], ",line:", tab_adj["lineB", "Estimate"], ",after:", tab_adj["periodAfter", "Estimate"],
+       ",tp:", tab_adj["throughput_tph", "Estimate"], ",mo:", tab_adj["moisture_pct", "Estimate"], ",te:", tab_adj["outdoor_temp_c", "Estimate"],
+       ",gr:", tab_adj["gradeHeavy", "Estimate"], ",ch:", tab_adj["changeovers", "Estimate"],
+       ",eff:", eff["Estimate"], ",lo:", eff["CI_low"], ",hi:", eff["CI_high"],
+       ",hours:", hours_per_day, ",days:", days_per_year, ",co2:", co2_factor, "};"),
+"(function(){",
+"var g=function(i){return document.getElementById(i)};",
+"function sp(n){var s=String(Math.round(Math.abs(n))),o='';while(s.length>3){o=' '+s.slice(-3)+o;s=s.slice(0,-3)}return(n<0?'-':'')+s+o}",
+"function run(){",
+"var tp=+g('wTp').value,mo=+g('wMo').value,te=+g('wTe').value,ch=+g('wCh').value,hv=+g('wHv').value/100,pr=+g('wPr').value,inv=+g('wIn').value*1000;",
+"g('wTpV').textContent=tp.toFixed(1)+' t/h';g('wMoV').textContent=mo.toFixed(1)+' %';g('wTeV').textContent=te+' C';g('wChV').textContent=ch;",
+"g('wHvV').textContent=Math.round(hv*100)+' %';g('wPrV').textContent=pr+' EUR/MWh';g('wInV').textContent='EUR '+sp(inv);",
+"var a=K.b0+K.line+K.after+K.tp*tp+K.mo*mo+K.te*te+K.gr*hv+K.ch*ch,b=a+K.eff,t=tp*K.hours*K.days;",
+"var s=-K.eff*t/1000*pr,s1=-K.hi*t/1000*pr,s2=-K.lo*t/1000*pr;",
+"g('wA').textContent=a.toFixed(0)+' kWh/t';g('wB').textContent=b.toFixed(0)+' kWh/t';",
+"g('wAb').style.width=Math.max(4,Math.min(100,a/8))+'%';g('wBb').style.width=Math.max(4,Math.min(100,b/8))+'%';",
+"g('wS').textContent='EUR '+sp(s/1000)+' 000';g('wSr').textContent='range '+sp(s1/1000)+' 000 to '+sp(s2/1000)+' 000';",
+"g('wP').textContent=(inv/s).toFixed(1)+' years';g('wPr2').textContent='between '+(inv/s2).toFixed(1)+' and '+(inv/s1).toFixed(1);",
+"g('wC').textContent='EUR '+(b*t/1000*pr/1e6).toFixed(2)+' M';g('wO').textContent=sp(-K.eff*t*K.co2/1000);",
+"g('wN').textContent='At these settings line B makes about '+sp(t)+' tonnes a year. The saving per tonne stays at '+(-K.eff).toFixed(1)+' kWh because the model has no interaction between the retrofit and the process settings, so volume and price are what move the payback. Predictions are reliable inside the range the data covered.';",
+"}",
+"['wTp','wMo','wTe','wCh','wHv','wPr','wIn'].forEach(function(i){g(i).addEventListener('input',run)});run();",
+"})();</script>",
+
 "<h2><span>Step 9</span>Recommendations</h2>",
 "<ol class='rec'>",
 sprintf("<li><b>Approve the retrofit for line A</b> on the corrected saving of about %s kWh per tonne, and report the range, not a single number.</li>", f1(-eff["Estimate"])),
@@ -203,7 +257,6 @@ sprintf("<li><b>Approve the retrofit for line A</b> on the corrected saving of a
 "<p>The data are simulated, so real plant data would bring autocorrelation, sensor drift and unrecorded events that need their own treatment. With one treated line and one control, the design cannot separate the retrofit from any other change made to line B in the same week. Days are treated as independent observations.</p>",
 "<p>To reproduce every number and figure on this page, download <a href='https://github.com/Rajan56/DataAnalyticsWith-R'>the two R scripts</a> into one folder and run:</p>",
 code("source(\"analysis.R\")"),
-sprintf("<p>This page was generated by %s. No packages beyond base R are required; svglite is used for the figures when it is installed.</p>", R.version.string),
 "</main>",
 "<footer><div class='wrap'>&copy; 2026 Rajan Kumar V K, D.Sc. (Tech.). Fictional company, simulated data. <a href='https://rajan56.github.io/RajanKVK03Portfolio/'>Back to portfolio</a></div></footer>",
 "</body>",
