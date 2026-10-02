@@ -55,7 +55,7 @@ h2 span{color:var(--amber);font-size:1rem;display:block;font-family:Inter,system
 .top{border-bottom:1px solid var(--line);font-size:.9rem}
 .top .wrap{display:flex;justify-content:space-between;align-items:center;height:56px}
 .top a{text-decoration:none;font-weight:600}
-.eyebrow{font-size:.76rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.eyebrow{font-size:1.2rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
 header.hero{padding:48px 0 8px}
 .lede{font-size:1.14rem;color:var(--ink2)}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
@@ -115,7 +115,7 @@ page <- c(
 paste0("<style>", css, "</style>"),
 "</head>",
 "<body>",
-"<div class='top'><div class='wrap'><a href='https://rajan56.github.io/RajanKVK03Portfolio/'>&larr; Portfolio of Rajan Kumar V K</a><a href='https://github.com/Rajan56/DataAnalyticsWith-R'>Source code</a></div></div>",
+"<div class='top'><div class='wrap'><a href='https://rajan56.github.io/RajanKVK-Industry-Portfolio/'>&larr; Portfolio of Rajan Kumar V K</a><a href='https://github.com/Rajan56/DataAnalyticsWith-R'>Source code</a></div></div>",
 "<header class='hero'><div class='wrap'>",
 "<span class='eyebrow'>Data analytics with R</span>",
 "<h1>Did the heat recovery retrofit pay off?</h1>",
@@ -258,7 +258,7 @@ sprintf("<li><b>Approve the retrofit for line A</b> on the corrected saving of a
 "<p>To reproduce every number and figure on this page, download <a href='https://github.com/Rajan56/DataAnalyticsWith-R'>the two R scripts</a> into one folder and run:</p>",
 code("source(\"analysis.R\")"),
 "</main>",
-"<footer><div class='wrap'>&copy; 2026 Rajan Kumar V K, D.Sc. (Tech.). Fictional company, simulated data. <a href='https://rajan56.github.io/RajanKVK03Portfolio/'>Back to portfolio</a></div></footer>",
+"<footer><div class='wrap'>&copy; 2026 Rajan Kumar V K, D.Sc. (Tech.). Fictional company, simulated data. <a href='https://rajan56.github.io/RajanKVK-Industry-Portfolio/'>Back to portfolio</a></div></footer>",
 "</body>",
 "</html>"
 )
