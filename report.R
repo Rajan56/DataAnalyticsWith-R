@@ -4,7 +4,8 @@
 # =============================================================================
 
 esc <- function(x) gsub(">", "&gt;", gsub("<", "&lt;", gsub("&", "&amp;", x, fixed = TRUE), fixed = TRUE), fixed = TRUE)
-outp <- function(title) paste0("<pre class='out'>", paste(esc(sec[[title]]), collapse = "\n"), "</pre>")
+tidy <- function(x) sub("\\s+$", "", gsub("\t", "    ", x))      # no tabs or trailing blanks in printed R output
+outp <- function(title) paste0("<pre class='out'>", paste(esc(tidy(sec[[title]])), collapse = "\n"), "</pre>")
 code <- function(...) paste0("<pre class='code'>", paste(esc(c(...)), collapse = "\n"), "</pre>")
 f1 <- function(x) formatC(x, format = "f", digits = 1)
 f0 <- function(x) formatC(round(x), format = "d", big.mark = " ")
